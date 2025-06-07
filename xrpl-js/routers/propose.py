@@ -10,8 +10,7 @@ from firebase_admin import credentials, firestore
 from pathlib import Path
 
 # === Load .env Variables ===
-env_path = Path("C:/Palak/NTU/easya-hackathon/.env")
-load_dotenv(dotenv_path=env_path)
+load_dotenv()
 
 # === Firebase Admin Setup ===
 cred_json_str = os.getenv("FIREBASE_CREDENTIALS_JSON")
