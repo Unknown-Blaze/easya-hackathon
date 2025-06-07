@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { db } from '../../firebase/config'; // Your Firebase db instance
-import OrderForm from '../OrderForm'; // Your existing customer-facing OrderForm
+import LandingPage from '../LandingPage'; // Your existing customer-facing OrderForm
 // You might want a simpler version of OrderForm for admin, or pass a prop to hide certain elements
 
 const styles = { // Basic inline styles - move to AdminQuickOrderForm.module.css
@@ -155,8 +155,8 @@ const AdminQuickOrderForm = () => {
         </div>
       )}
 
-      {/* Pass selectedCustomerForOrder and a success callback to OrderForm */}
-      <OrderForm
+      {/* Pass selectedCustomerForOrder and a success callback to LandingPage */}
+      <LandingPage
         initialCustomerData={selectedCustomerForOrder}
         isAdminPlacingOrder={true} // New prop to indicate admin context
         onAdminOrderSuccess={handleOrderFormSuccess} // Callback after admin places order
