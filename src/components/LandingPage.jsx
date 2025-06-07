@@ -306,7 +306,7 @@ const LandingPage = () => {
             powered by the XRP Ledger for unparalleled transparency and accountability.
           </p>
           <div style={styles.heroButtonsContainer}>
-            <a href="#request-demo" style={{...styles.ctaButtonBase, ...styles.ctaButtonPrimary, ...(hoverStates.demo ? styles.ctaButtonPrimaryHover : {})}}
+            <a href="/login" style={{...styles.ctaButtonBase, ...styles.ctaButtonPrimary, ...(hoverStates.demo ? styles.ctaButtonPrimaryHover : {})}}
                onMouseEnter={() => handleMouseEnter('demo')} onMouseLeave={() => handleMouseLeave('demo')}>
               <FiPlayCircle /> Try it out!
             </a>
