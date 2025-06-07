@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from web3 import Web3
-from xrpl.wallet import generate_faucet_wallet
 
-from services.xrpl_client import client
+from routers.donate import get_faucet_wallet
 
 router = APIRouter()
 w3 = Web3()
@@ -11,7 +10,7 @@ w3 = Web3()
 @router.post("/create")
 def create_wallet():
     try:
-        xrp_wallet = generate_faucet_wallet(client, debug=True)
+        xrp_wallet = get_faucet_wallet()
         eth_wallet = w3.eth.account.create()
         return {
             {

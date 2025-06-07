@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-from routers import wallet, transaction, propose
+from routers import wallet, transaction, propose, donate
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="XRPL Wallet API",
@@ -7,7 +8,16 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Include routers for the wallet and transactions between the donor/NGO
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers for creating the wallet, viewing transactions, donating, and proposing initiatives
 app.include_router(wallet.router, prefix="/wallet", tags=["Wallet"])
 app.include_router(transaction.router, prefix="/transaction", tags=["Transaction"])
 app.include_router(propose.router, prefix="/charity", tags=["Charity"])
+app.include_router(donate.router, prefix="/donate", tags=["Donate"])

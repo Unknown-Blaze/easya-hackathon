@@ -172,7 +172,7 @@ function AppLayout() {
                         color: 'white',
                         padding: '8px 18px' // Match authButton padding
                     }}>
-                        Sign Up
+                      Register
                     </span>
                  )}
               </NavLink>
