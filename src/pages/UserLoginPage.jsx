@@ -30,7 +30,7 @@ const UserLoginPage = () => {
 
   return (
     <div className={classes.pageContainer}>
-      <div className={classes.loginBox}>
+      <div className={classes.formBox}>
         <h2 className={classes.title}>Welcome Back!</h2>
         {error && <p className={classes.error}>{error}</p>}
         <form onSubmit={handleSubmit}>
