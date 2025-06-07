@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import classes from './AdminLoginPage.module.css';
 import { FiLoader } from 'react-icons/fi';
+import { getAddress, sendPayment } from '@gemwallet/api';
 
 const SignupPage = () => {
   const [userType, setUserType] = useState('donor');
@@ -37,6 +38,35 @@ const SignupPage = () => {
     setLoadingMessage(message || '');
   };
 
+  async function connectGemWallet() {
+    const response = await getAddress();
+  
+    if (response.status === 'success') {
+      console.log('Wallet address:', response.address);
+    } else {
+      console.error('User rejected or GemWallet not installed');
+    }
+  }
+
+  async function handleSendPayment() {
+    const transaction = {
+      destination: 'r4sXNGwP85VZ4PQbceXD66Xp8cJHL6mT9B', // Replace with a real XRP address
+      amount: '5', // Amount in XRP
+    };
+  
+    try {
+      const response = await sendPayment(transaction);
+  
+      if (response.status === 'success') {
+        console.log('Transaction successful! Hash:', response.hash);
+      } else {
+        console.error('Payment failed:', response.error);
+      }
+    } catch (error) {
+      console.error('Unexpected error during payment:', error);
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) return setError("Passwords do not match.");
@@ -64,7 +94,8 @@ const SignupPage = () => {
 
     try {
       console.log("SignupPage: Calling signup function...");
-      const result = await signup(email, password, nameToRegister, additionalData, handleStepChange);
+      const result = await connectGemWallet();
+      // const result = await signup(email, password, nameToRegister, additionalData, handleStepChange);
       console.log("SignupPage: Signup function returned:", result);
 
       if (result && result.seed) {
@@ -181,6 +212,8 @@ const SignupPage = () => {
         </div>
 
         {error && <p className={classes.error}>{error}</p>}
+
+        <button onClick={connectGemWallet}>Connect Wallet</button>
 
         <form onSubmit={handleSubmit}>
           {userType === 'donor' ? renderDonorFieldsJsx : renderNonprofitFieldsJsx}
