@@ -1,0 +1,151 @@
+/* src/pages/UserProfilePage.module.css */
+.pageContainer {
+  max-width: 750px;
+  margin: 30px auto;
+  padding: 20px 25px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.pageTitle {
+  font-size: 2em;
+  color: #343a40;
+  margin-bottom: 25px;
+  text-align: center;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 15px;
+}
+
+.section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+}
+.section:not(:last-child) {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+
+.sectionTitle {
+  font-size: 1.4em;
+  color: #495057;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+.infoGrid { /* For displaying info */
+    display: grid;
+    grid-template-columns: auto 1fr; /* Label and value */
+    gap: 8px 15px;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.infoGrid p {
+    margin-bottom: 0;
+    font-size: 1em;
+}
+.infoGrid strong {
+    color: #343a40;
+    font-weight: 500;
+}
+
+.formGroup {
+  margin-bottom: 18px;
+}
+
+.label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #34495e;
+  font-size: 0.95em;
+}
+
+.input, .select { /* Uses global styles, can override */
+  margin-bottom: 0; /* Remove bottom margin if formGroup handles it */
+}
+
+.button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1em;
+  transition: background-color 0.2s ease;
+}
+
+.editButton {
+  background-color: #007bff;
+  color: white;
+}
+.editButton:hover { background-color: #0056b3; }
+
+.saveButton {
+  background-color: #28a745;
+  color: white;
+}
+.saveButton:hover { background-color: #1e7e34; }
+
+.cancelButton {
+  background-color: #6c757d;
+  color: white;
+  margin-left: 10px;
+}
+.cancelButton:hover { background-color: #545b62; }
+
+.button:disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+}
+
+.orderCard {
+  border: 1px solid #e0e0e0;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  background-color: #fdfdfd;
+}
+.orderCard p {
+  margin-bottom: 5px;
+  font-size: 0.95em;
+}
+.orderCard strong {
+    color: #495057;
+}
+
+.loadingText, .noOrdersText {
+    text-align: center;
+    padding: 20px;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Responsive adjustments for profile page */
+@media (max-width: 600px) {
+    .pageContainer {
+        margin: 15px;
+        padding: 15px;
+    }
+    .pageTitle {
+        font-size: 1.6em;
+    }
+    .sectionTitle {
+        font-size: 1.2em;
+    }
+    .infoGrid {
+        grid-template-columns: 1fr; /* Stack label and value */
+        gap: 5px;
+    }
+    .infoGrid strong {
+        margin-bottom: 2px;
+    }
+    .button {
+        width: 100%;
+        margin-top: 10px;
+    }
+    .cancelButton {
+        margin-left: 0;
+    }
+}
