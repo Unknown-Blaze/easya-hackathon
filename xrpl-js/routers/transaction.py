@@ -1,48 +1,60 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from xrpl.wallet import Wallet
-from xrpl.models.transactions import Payment
-from xrpl.models.requests import AccountInfo, AccountTx
-from xrpl.transaction import submit_and_wait
-from xrpl.utils import xrp_to_drops
-from services.xrpl_client import client
-from xrpl.asyncio.clients import AsyncJsonRpcClient
-from constants import NGO_WALLET_ADDRESS
+from xrpl.asyncio.clients import AsyncJsonRpcClient # Ensure this is the client you use
+from xrpl.models.requests import AccountTx
+from constants import NGO_WALLET_ADDRESS # Make sure this is correctly defined
 
 router = APIRouter()
 
-# Function returns the latest list of transactions to the NGO's wallet address.
 @router.get("/latest-transactions")
-async def listen_for_transactions(latest_tx_hash: str | None):
-    client = AsyncJsonRpcClient("https://s.altnet.rippletest.net:51234")
+async def listen_for_transactions(latest_tx_hash: str | None = None): # Added default None
+    # Use your shared client instance if available, or create one
+    # client = AsyncJsonRpcClient("https://s.altnet.rippletest.net:51234") # If creating here
+
+    # If you have a globally defined async client (e.g., from services.xrpl_client):
+    from services.xrpl_client import client as async_xrpl_client # Assuming you have one
 
     try:
-        """
-        Requests the five latest transactions made to our NGO's wallet. We'll only keep the last
-        five transactions in the frontend when we display as well.
-        """
         req = AccountTx(
-            account=f"{NGO_WALLET_ADDRESS}",
-            ledger_index_min=-1,
-            ledger_index_max=-1,
-            limit=5,
+            account=NGO_WALLET_ADDRESS,
+            ledger_index_min=-1, # Use -1 for unvalidated, or specific ledger indexes
+            ledger_index_max=-1, # Use -1 for unvalidated, or specific ledger indexes
+            limit=10, # Fetch a bit more to ensure we find the last_tx_hash if it's slightly older
             binary=False,
-            forward=False,
+            forward=False, # Newest first
         )
-        response = await client.request(req)
-        txs = response.result.get("transactions", [])
+        response = await async_xrpl_client.request(req) # Use your shared async client
+        
+        if response.is_successful() and response.result:
+            all_fetched_txs = response.result.get("transactions", [])
+        else:
+            print("Error in XRPL response or no result:", response)
+            return [] # Return empty on error or no result
 
-        # If no transaction hash exists (first transaction), return all.
-        if not latest_tx_hash:
-            return txs
-        new_txs = []
+        if not all_fetched_txs:
+            return []
 
-        # If a transaction history exists, just iterate till you find the latest transaction hash from the frontend whilst polling.
-        for num, tx in enumerate(txs):
-            if tx[num]['hash'] == latest_tx_hash:
-                break
-            new_txs.append(tx)
-        return new_txs
-    
+        if not latest_tx_hash: # First call or no previous hash
+            return all_fetched_txs[:5] # Return up to the latest 5
+
+        new_txs_to_return = []
+        for tx_data in all_fetched_txs:
+            # The actual transaction object is often under 'tx' or 'transaction'
+            # The 'hash' might be top-level in tx_data or inside tx_data['tx']
+            current_tx_hash = tx_data.get("hash") # Prefer top-level hash
+            if not current_tx_hash and tx_data.get("tx"):
+                 current_tx_hash = tx_data["tx"].get("hash")
+            elif not current_tx_hash and tx_data.get("transaction"):
+                 current_tx_hash = tx_data["transaction"].get("hash")
+
+
+            if current_tx_hash == latest_tx_hash:
+                break # Stop when we find the last known transaction
+            new_txs_to_return.append(tx_data)
+        
+        return new_txs_to_return[:5] # Return up to 5 new transactions
+
     except Exception as e:
-        print("Error fetching latest transactions:", e)
+        print(f"Error fetching latest transactions from XRPL: {e}")
+        # Consider raising HTTPException for client-side error handling
+        # raise HTTPException(status_code=500, detail=f"Error fetching transactions: {str(e)}")
+        return [] # Return empty on exception
