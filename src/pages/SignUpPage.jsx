@@ -164,7 +164,7 @@ const SignupPage = () => {
     <div className={classes.pageContainer}>
       {showSeedModal && <SeedModal />}
       <div className={classes.formBox} style={showSeedModal ? { filter: 'blur(3px)' } : {}}> {/* Blur background when modal is open */}
-        <h2 className={classes.title}>Register for nGoDONATE</h2>
+        <h2 className={classes.title}>Register For nGoDONATE</h2>
         <div className={classes.userTypeToggle}>
           <button
             className={`${classes.toggleButton} ${userType === 'donor' ? classes.active : ''}`}

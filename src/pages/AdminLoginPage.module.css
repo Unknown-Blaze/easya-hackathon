@@ -7,7 +7,6 @@
   min-height: 100vh; /* Full viewport height */
   padding: 20px;
   box-sizing: border-box;
-  background-image: url("/login_bg.webp"); /* Ensure this image is in your public folder */
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
@@ -21,7 +20,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.65); /* white overlay */
+  background-color: #c1dfff; /* white overlay */
   z-index: 0; /* Behind the content */
 }
 
@@ -48,11 +47,11 @@
 }
 
 .title {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat';
   font-size: 1.8em; /* Slightly larger title */
   color: #0D253F; /* Dark Blue */
   margin-bottom: 25px; /* More space below title */
-  font-weight: 600;
+  font-weight: 200;
 }
 
 .formGroup {
