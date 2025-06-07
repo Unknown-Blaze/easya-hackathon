@@ -1,3 +1,7 @@
 fastapi
 uvicorn
 xrpl-py
+python-dotenv
+firebase-admin
+pydantic
+email-validator
