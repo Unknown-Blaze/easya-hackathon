@@ -1,5 +1,4 @@
-from fastapi import APIRouter, HTTPException
-from xrpl.asyncio.clients import AsyncJsonRpcClient # Ensure this is the client you use
+from fastapi import APIRouter
 from xrpl.models.requests import AccountTx
 from constants import NGO_WALLET_ADDRESS # Make sure this is correctly defined
 

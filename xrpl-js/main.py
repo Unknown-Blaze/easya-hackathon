@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import wallet, transaction, propose, donate
+from routers import wallet, transaction, donate
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -19,5 +19,4 @@ app.add_middleware(
 # Include routers for creating the wallet, viewing transactions, donating, and proposing initiatives
 app.include_router(wallet.router, prefix="/wallet", tags=["Wallet"])
 app.include_router(transaction.router, prefix="/transaction", tags=["Transaction"])
-app.include_router(propose.router, prefix="/charity", tags=["Charity"])
 app.include_router(donate.router, prefix="/donate", tags=["Donate"])
