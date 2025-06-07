@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import wallet, transaction
+from routers import wallet, transaction, propose
 
 app = FastAPI(
     title="XRPL Wallet API",
@@ -10,3 +10,4 @@ app = FastAPI(
 # Include routers for the wallet and transactions between the donor/NGO
 app.include_router(wallet.router, prefix="/wallet", tags=["Wallet"])
 app.include_router(transaction.router, prefix="/transaction", tags=["Transaction"])
+app.include_router(propose.router, prefix="/charity", tags=["Charity"])

@@ -1,6 +1,6 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link as RouterLink, NavLink, useNavigate, Navigate } from 'react-router-dom'; // Added NavLink for active styling
+import { BrowserRouter as Router, Routes, Route, Link as RouterLink, NavLink, useNavigate, Navigate } from 'react-router-dom';
 
 import { useAuth } from './contexts/AuthContext';
 import HomePage from './pages/HomePage';
@@ -9,77 +9,74 @@ import AdminDashboardPage from './pages/AdminDashboardPage';
 import UserLoginPage from './pages/UserLoginPage';
 import SignupPage from './pages/SignUpPage';
 import UserProfilePage from './pages/UserProfilePage';
-import AdminEditOrderPage from './pages/AdminEditOrderPage';
-// import ProtectedRoute from './components/Admin/ProtectedRoute'; // Assuming you have this generic one
-import { usePageTracking } from './utils/analytics'; // Adjust path if needed
+import AdminEditOrderPage from './pages/AdminEditOrderPage'; // Consider renaming if "order" changes context
+import { usePageTracking } from './utils/analytics';
 
-// --- DEFINE YOUR ADMIN'S UID HERE ---
-// You can get this from Firebase Authentication console after creating the admin user.
-// For better security, this could be stored in an environment variable,
-// but for simplicity now, we'll define it here.
-const ADMIN_UID = "0KdTIOR7cwd7fMKK805Ojt2tnBP2"; // <<<< REPLACE THIS
+// IMPORTANT: For better security, ADMIN_UID should be stored in an environment variable.
+const ADMIN_UID = "0KdTIOR7cwd7fMKK805Ojt2tnBP2"; // <<<< REPLACE THIS with your actual Admin UID
 
 const navStyles = {
   nav: {
-    backgroundColor: '#ffffff', // White background
-    padding: '12px 25px',      // Adjusted padding
+    backgroundColor: '#FFFFFF', // White background
+    padding: '15px 30px',      // Adjusted padding
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderBottom: '1px solid #e9ecef', // Lighter border
-    boxShadow: '0 2px 4px rgba(0,0,0,0.03)', // Subtle shadow
+    borderBottom: '1px solid #e0e0e0', // Lighter border
+    boxShadow: '0 2px 5px rgba(0,0,0,0.05)', // Subtle shadow
     flexWrap: 'wrap',
-    position: 'sticky', // Make navbar sticky
+    position: 'sticky',
     top: 0,
-    zIndex: 1010, // Ensure it's above other content
+    zIndex: 1020, // Ensure it's above other content
+    height: '70px', // Fixed height for consistent layout
+    fontFamily: "'Open Sans', sans-serif",
   },
-  brandLink: { // For the main "Mango Shop" link
+  brandLink: {
     textDecoration: 'none',
-    color: '#FF9800', // Mango Orange for brand
+    color: '#0A2E36', // Deep Teal for brand
     fontWeight: 'bold',
-    fontSize: '1.5em', // Larger brand name
-    fontFamily: "'Pacifico', cursive", // Example of a nice display font (add to index.html or global CSS)
+    fontSize: '1.8em', // Larger brand name
+    fontFamily: "'Montserrat', sans-serif", // Brand font
   },
-  navLinksContainer: { // To group main navigation links
+  navLinksContainer: {
     display: 'flex',
     alignItems: 'center',
-    gap: '20px', // Space between links
+    gap: '25px', // Space between links
   },
   link: {
     textDecoration: 'none',
-    color: '#495057', // Dark grey for links
+    color: '#333333', // Dark Gray for links
     fontWeight: '500',
-    padding: '8px 12px',
+    padding: '8px 15px',
     borderRadius: '4px',
     transition: 'background-color 0.2s ease, color 0.2s ease',
     fontSize: '1em',
   },
-  activeLink: { // This style will be applied by NavLink's isActive prop
-    backgroundColor: '#FF9800',
+  activeLink: {
+    backgroundColor: '#007C8A', // Bright Teal for active link
     color: 'white',
   },
-  logoutButton: {
-    background: 'none',
-    border: '1px solid #FF9800',
-    color: '#FF9800',
+  authButton: { // Unified style for login/logout/signup buttons in nav
+    background: 'transparent',
+    border: '1px solid #007C8A', // Bright Teal border
+    color: '#007C8A', // Bright Teal text
     cursor: 'pointer',
     fontWeight: '500',
-    padding: '7px 15px',
+    padding: '8px 18px',
     borderRadius: '4px',
     fontSize: '0.95em',
     transition: 'background-color 0.2s ease, color 0.2s ease',
+    marginLeft: '10px', // If it's the last item on the right
   },
-  logoutButtonHover: { // For JS hover if needed, CSS :hover is better
-    backgroundColor: '#FF9800',
+  authButtonHover: {
+    backgroundColor: '#007C8A',
     color: 'white',
   }
 };
 
-// Create a new component to call usePageTracking
-// This component will be rendered inside <Router>
 function PageTracker() {
   usePageTracking();
-  return null; // This component doesn't render anything itself
+  return null;
 }
 
 export default function App() {
@@ -93,43 +90,29 @@ export default function App() {
 
 function AppLayout() {
   const { currentUser, logout, currentUserProfile } = useAuth();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Not used directly in this simplified nav
 
   const handleLogout = async () => {
     try {
       await logout();
+      // navigate('/'); // Optional: redirect to home after logout
     } catch (error) {
       console.error("Failed to log out", error);
-      alert("Logout failed.");
+      alert("Logout failed. Please try again.");
     }
   };
 
-  const goToOrder = () => navigate(`/`);
-
-  const isAdmin = true;
-
-  let name = currentUserProfile?.displayName
-    ? currentUserProfile.displayName + "'s Profile"
-    : "Your Profile";
+  const profileName = currentUserProfile?.displayName
+    ? `${currentUserProfile.displayName}'s Profile`
+    : "My Profile";
 
   return (
     <>
       <nav style={navStyles.nav}>
         <RouterLink to="/" style={navStyles.brandLink}>
-          Mango Club - Order
+          nGoDONATE
         </RouterLink>
-        <button
-          onClick={goToOrder}
-          style={navStyles.logoutButton}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.backgroundColor = navStyles.logoutButtonHover.backgroundColor)
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.backgroundColor = "transparent")
-          }
-        >
-          Order
-        </button>
+
         <div style={navStyles.navLinksContainer}>
           {currentUser ? (
             <>
@@ -141,18 +124,19 @@ function AppLayout() {
                     : navStyles.link
                 }
               >
-                {name}
+                {profileName}
               </NavLink>
               <button
                 onClick={handleLogout}
-                style={navStyles.logoutButton}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    navStyles.logoutButtonHover.backgroundColor)
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = "transparent")
-                }
+                style={navStyles.authButton}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = navStyles.authButtonHover.backgroundColor;
+                  e.currentTarget.style.color = navStyles.authButtonHover.color;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                  e.currentTarget.style.color = navStyles.authButton.color;
+                }}
               >
                 Logout
               </button>
@@ -171,13 +155,26 @@ function AppLayout() {
               </NavLink>
               <NavLink
                 to="/signup"
-                style={({ isActive }) =>
-                  isActive
-                    ? { ...navStyles.link, ...navStyles.activeLink }
-                    : navStyles.link
-                }
+                style={({ isActive }) => ({
+                  ...navStyles.link,
+                  ...(isActive ? navStyles.activeLink : {}),
+                  // Special style for Sign Up to make it stand out more like a CTA
+                  // backgroundColor: isActive ? navStyles.activeLink.backgroundColor : '#007C8A',
+                  // color: 'white',
+                  // border: `1px solid ${isActive ? navStyles.activeLink.backgroundColor : '#007C8A'}`
+                })}
               >
-                Sign Up
+                 {({ isActive }) => (
+                    <span style={{
+                        ...navStyles.link,
+                        ...(isActive ? navStyles.activeLink : {}),
+                        backgroundColor: isActive ? navStyles.activeLink.backgroundColor : '#007C8A', // Bright Teal
+                        color: 'white',
+                        padding: '8px 18px' // Match authButton padding
+                    }}>
+                        Sign Up
+                    </span>
+                 )}
               </NavLink>
             </>
           )}
@@ -190,24 +187,18 @@ function AppLayout() {
         <Route path="/login" element={<UserLoginPage />} />
         <Route
           path="/profile"
-          element={
-              <UserProfilePage />
-          }
+          element={currentUser ? <UserProfilePage /> : <Navigate to="/login" replace />}
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route
           path="/admin/dashboard"
-          element={
-              <AdminDashboardPage />
-          }
+          element={currentUser?.uid === ADMIN_UID ? <AdminDashboardPage /> : <Navigate to="/admin/login" replace />}
         />
         <Route
-          path="/admin/order/:orderId"
-          element={
-              <AdminEditOrderPage />
-          }
+          path="/admin/order/:orderId" // TODO: Rename to /admin/project/:projectId or similar
+          element={currentUser?.uid === ADMIN_UID ? <AdminEditOrderPage /> : <Navigate to="/admin/login" replace />}
         />
+        <Route path="*" element={<Navigate to="/" replace />} /> {/* Catch-all redirects to home */}
       </Routes>
     </>
   );
