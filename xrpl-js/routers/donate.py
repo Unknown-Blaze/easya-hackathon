@@ -1,7 +1,6 @@
 import time
 from datetime import datetime
 from typing import List
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from xrpl.account import get_balance
@@ -12,9 +11,6 @@ from xrpl.wallet import generate_faucet_wallet
 from services.xrpl_client import client
 
 router = APIRouter()
-
-NGO_WALLET_ADDRESS = "rNGovExampleTestnetAddressXxx"
-
 
 class Milestone(BaseModel):
     task: str

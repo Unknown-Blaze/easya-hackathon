@@ -7,7 +7,6 @@ import json
 from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
-from pathlib import Path
 
 # === Load .env Variables ===
 load_dotenv()
