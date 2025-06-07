@@ -21,6 +21,14 @@ const UserProfilePage = () => {
   const [loadingProfileSave, setLoadingProfileSave] = useState(false); // For the save button
   const [initialProfileLoading, setInitialProfileLoading] = useState(true); // NEW: For initial profile data population
 
+  const [expanded, setExpanded] = useState(false);
+
+  const getShortAddress = (addr) => {
+    if (!addr) return 'Not set';
+    if (addr.length <= 12) return addr;
+    return `${addr.slice(0, 6)}......${addr.slice(-6)}`;
+  };
+
   // Effect to populate form when currentUserProfile is available or changes
   useEffect(() => {
     if (currentUserProfile) {
@@ -138,7 +146,18 @@ const UserProfilePage = () => {
               <p><strong>Name:</strong></p><p>{currentUserProfile?.displayName || formData.displayName || 'Not set'}</p>
               <p><strong>Email:</strong></p><p>{currentUser?.email}</p>
               <p><strong>Phone:</strong></p><p>{currentUserProfile?.phone || formData.phone || 'Not set'}</p>
-              <p><strong>Wallet Address:</strong></p><p>{currentUserProfile?.xrplAddress || 'Not set'}</p>
+              <p><strong>Wallet Address:</strong></p>
+              <p>
+                {expanded ? currentUserProfile?.xrplAddress : getShortAddress(currentUserProfile?.xrplAddress)}
+                {currentUserProfile?.xrplAddress && currentUserProfile?.xrplAddress.length > 12 && (
+                  <button 
+                    onClick={() => setExpanded(!expanded)} 
+                    style={{ marginLeft: '10px', cursor: 'pointer', border: 'none', background: 'none', color: 'blue' }}
+                  >
+                    {expanded ? 'Hide' : 'Show full'}
+                  </button>
+                )}
+              </p>            
             </div>
             <button onClick={() => setIsEditing(true)} className={`${classes.button} ${classes.editButton}`}>Edit Profile</button>
           </>
