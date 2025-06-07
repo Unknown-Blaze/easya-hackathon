@@ -221,37 +221,6 @@ const UserProfilePage = () => {
                 </div>
            </div>
       )}
-
-
-      {/* Past Orders Section - UPDATED */}
-      <div className={classes.section}>
-        <h3 className={classes.sectionTitle}>My Past Orders</h3>
-        {loadingOrders && <p className={classes.loadingText}>Loading orders...</p>}
-        {!loadingOrders && userOrders.length === 0 && <p className={classes.noOrdersText}>You haven't placed any orders yet.</p>}
-        {!loadingOrders && userOrders.map(order => (
-          <div key={order.id} className={classes.orderCard}>
-            <div className={classes.orderCardHeader}> {/* Optional: For better structure if needed */}
-                <p><strong>Date:</strong> {new Date(order.createdAt?.seconds * 1000).toLocaleDateString('en-GB')}</p> {/* DD/MM/YYYY */}
-            </div>
-            <div>
-                <strong>Items Ordered:</strong>
-                {order.orderedItems && order.orderedItems.length > 0 ? (
-                    <ul className={classes.itemsListInCard}> {/* Add a class for styling this list */}
-                        {(order.orderedItems || []).map((item, index) => (
-                            <li key={item.id || index}>
-                                {item.name} - {item.quantity} box{item.quantity > 1 ? 'es' : ''}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p>No items information available.</p>
-                )}
-            </div>
-            <p><strong>Status:</strong> {order.orderStatus}</p>
-            <p><strong>Payment:</strong> {order.paymentStatus?.isPaid ? 'Paid' : 'Pending'}</p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
