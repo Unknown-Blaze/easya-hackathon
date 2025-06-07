@@ -11,8 +11,8 @@ import SignupPage from './pages/SignUpPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminEditOrderPage from './pages/AdminEditOrderPage'; // Consider renaming if "order" changes context
 import { usePageTracking } from './utils/analytics';
+import CharityProjectForm from "./pages/CreateProject";
 import ProjectDisplayPage from './pages/ProjectDisplayPage'; // Import it
-
 
 // IMPORTANT: For better security, ADMIN_UID should be stored in an environment variable.
 const ADMIN_UID = "0KdTIOR7cwd7fMKK805Ojt2tnBP2"; // <<<< REPLACE THIS with your actual Admin UID
@@ -187,6 +187,7 @@ function AppLayout() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<UserLoginPage />} />
+        <Route path="/createproject" element={<CharityProjectForm />} />
         <Route
           path="/profile"
           element={currentUser ? <UserProfilePage /> : <Navigate to="/login" replace />}

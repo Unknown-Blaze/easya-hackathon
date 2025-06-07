@@ -138,6 +138,7 @@ const UserProfilePage = () => {
               <p><strong>Name:</strong></p><p>{currentUserProfile?.displayName || formData.displayName || 'Not set'}</p>
               <p><strong>Email:</strong></p><p>{currentUser?.email}</p>
               <p><strong>Phone:</strong></p><p>{currentUserProfile?.phone || formData.phone || 'Not set'}</p>
+              <p><strong>Wallet Address:</strong></p><p>{currentUserProfile?.xrplAddress || 'Not set'}</p>
             </div>
             <button onClick={() => setIsEditing(true)} className={`${classes.button} ${classes.editButton}`}>Edit Profile</button>
           </>
