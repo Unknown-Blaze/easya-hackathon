@@ -197,18 +197,13 @@ const AdminDashboardPage = () => {
     }
   };
 
-  if (!currentUser) { // Should be handled by ProtectedRoute, but as a fallback
-      navigate('/admin/login');
-      return <p>Redirecting to login...</p>;
-  }
-
 
   return (
     <div className={classes.dashboardPage}>
       <header className={classes.header}>
         <h1 className={classes.headerTitle}>Mango Business Admin</h1>
         <div className={classes.headerUser}>
-            Logged in as: {currentUser.email}
+            {/* Logged in as: {currentUser.email} */}
             <button onClick={handleLogout} className={classes.logoutButton}>Logout</button>
         </div>
       </header>

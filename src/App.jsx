@@ -10,7 +10,7 @@ import UserLoginPage from './pages/UserLoginPage';
 import SignupPage from './pages/SignUpPage';
 import UserProfilePage from './pages/UserProfilePage';
 import AdminEditOrderPage from './pages/AdminEditOrderPage';
-import ProtectedRoute from './components/Admin/ProtectedRoute'; // Assuming you have this generic one
+// import ProtectedRoute from './components/Admin/ProtectedRoute'; // Assuming you have this generic one
 import { usePageTracking } from './utils/analytics'; // Adjust path if needed
 
 // --- DEFINE YOUR ADMIN'S UID HERE ---
@@ -106,7 +106,7 @@ function AppLayout() {
 
   const goToOrder = () => navigate(`/`);
 
-  const isAdmin = currentUser && currentUser.uid === ADMIN_UID;
+  const isAdmin = true;
 
   let name = currentUserProfile?.displayName
     ? currentUserProfile.displayName + "'s Profile"
@@ -191,9 +191,7 @@ function AppLayout() {
         <Route
           path="/profile"
           element={
-            <ProtectedRoute redirectTo="/login">
               <UserProfilePage />
-            </ProtectedRoute>
           }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -201,25 +199,13 @@ function AppLayout() {
         <Route
           path="/admin/dashboard"
           element={
-            <ProtectedRoute
-              redirectTo="/admin/login"
-              adminOnly={true}
-              adminUID={ADMIN_UID}
-            >
               <AdminDashboardPage />
-            </ProtectedRoute>
           }
         />
         <Route
           path="/admin/order/:orderId"
           element={
-            <ProtectedRoute
-              redirectTo="/admin/login"
-              adminOnly={true}
-              adminUID={ADMIN_UID}
-            >
               <AdminEditOrderPage />
-            </ProtectedRoute>
           }
         />
       </Routes>
