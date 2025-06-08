@@ -7,8 +7,7 @@
     <li>⚙️ <strong>FastAPI</strong> for a high-performance backend API in Python</li>
     <li>🔗 <strong>XRP Ledger (XRPL)</strong> for blockchain interactions (sending transactions, checking balances, etc.)</li>
   </ul>
-
-
+  
  <h3> XRP Ledger Integration</h3>
   <p>The backend uses <code>xrpl-py</code> to interact with the XRP Ledger.</p>
   <table>
@@ -115,3 +114,9 @@ npm run dev
     </table>
 
 Block explorer link - https://testnet.xrpl.org/accounts/r4sXNGwP85VZ4PQbceXD66Xp8cJHL6mT9B
+
+## Screenshots
+![Screenshot 1](screenshots/Screenshot%202025-06-08%20120215.png)
+![Screenshot 2](screenshots/Screenshot%202025-06-08%20120224.png)
+![Screenshot 3](screenshots/Screenshot%202025-06-08%20120434.png)
+![Screenshot 4](screenshots/Screenshot%202025-06-08%20120458.png)
