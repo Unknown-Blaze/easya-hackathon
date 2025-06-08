@@ -1,5 +1,5 @@
 
-    <h1>nGoDonate</h1>
+<h1>nGoDonate</h1>
   <h2>React + Vite + FastAPI + XRP Blockchain App</h2>
   <p>Blockchain based, near transparent, trustworthy and secure donation platform</p>
   <ul>
