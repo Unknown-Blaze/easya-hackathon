@@ -1,13 +1,13 @@
 // src/pages/UserProfile.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { doc, updateDoc, getDocs, collection, query, where, orderBy } from 'firebase/firestore';
+import { doc, updateDoc, getDocs, collection, query } from 'firebase/firestore'; // Removed unused where, orderBy
 import { db } from '../firebase/config';
 import styles from './UserProfile.module.css';
-import { Link } from 'react-router-dom'; // <<<<<<<<<<<< IMPORT Link
+import { Link } from 'react-router-dom';
 
 const UserProfile = () => {
-    const { currentUserProfile, updateUserProfile } = useAuth(); // Assuming updateUserProfile updates displayName in context & Firestore
+    const { currentUserProfile, updateUserProfile } = useAuth();
     const [isEditing, setIsEditing] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [formData, setFormData] = useState({ displayName: '' });
@@ -18,6 +18,7 @@ const UserProfile = () => {
         if (currentUserProfile) {
             setFormData({
                 displayName: currentUserProfile.displayName || ''
+                // No need to set wallet address in formData as it's not directly editable here
             });
         }
     }, [currentUserProfile]);
@@ -26,12 +27,8 @@ const UserProfile = () => {
         const loadProjects = async () => {
             setLoadingProjects(true);
             try {
-                // Assuming 'charity_projects' is the correct collection name
-                // And each document in this collection has 'name' and 'description'
                 const projectsRef = collection(db, 'charity_projects');
-                // You might want to order them, e.g., by creation date if you have such a field
-                // const q = query(projectsRef, orderBy("createdAt", "desc"));
-                const q = query(projectsRef); // Simple query for all projects for now
+                const q = query(projectsRef);
                 const querySnapshot = await getDocs(q);
                 const projectsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setProjects(projectsData);
@@ -41,9 +38,8 @@ const UserProfile = () => {
                 setLoadingProjects(false);
             }
         };
-
         loadProjects();
-    }, []); // Load projects once on component mount
+    }, []);
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,20 +51,24 @@ const UserProfile = () => {
             return;
         }
         try {
-            // Update in Firebase Auth (if your updateUserProfile in AuthContext handles this)
-            // and Firestore.
             const userDocRef = doc(db, 'users', currentUserProfile.uid);
             await updateDoc(userDocRef, {
                 displayName: formData.displayName,
             });
-            // Also update the local AuthContext state
-            if (updateUserProfile) { // Check if updateUserProfile is provided by useAuth
-                await updateUserProfile(formData.displayName); // This should update currentUserProfile in context
+            // The updateUserProfile in AuthContext should ideally handle updating Firebase Auth displayName
+            // and then re-fetch/update currentUserProfile which includes the new displayName.
+            // If it only updates Firebase Auth, you might need to manually update context or rely on onAuthStateChanged listener.
+            if (updateUserProfile) {
+                 // Assuming updateUserProfile updates the context's currentUserProfile correctly
+                await updateUserProfile(formData.displayName);
+            } else if (currentUserProfile.displayName !== formData.displayName) {
+                // Manually update local state if updateUserProfile is not robust enough
+                // This is a fallback and ideally AuthContext handles this update propagation
+                // For simplicity, we assume AuthContext handles it.
             }
             setIsEditing(false);
         } catch (error) {
             console.error('Error updating profile:', error);
-            // Add user-facing error message if needed
         }
     };
 
@@ -84,6 +84,15 @@ const UserProfile = () => {
         if (addr.length <= 12) return addr;
         return `${addr.slice(0, 6)}......${addr.slice(-6)}`;
     };
+
+    // Add a check for loading currentUserProfile to prevent rendering with undefined data
+    if (!currentUserProfile) {
+        return (
+            <div className={styles.userProfileContainer} style={{textAlign: 'center', padding: '50px'}}>
+                Loading profile...
+            </div>
+        );
+    }
 
     return (
         <div className={styles.userProfileContainer}>
@@ -103,14 +112,19 @@ const UserProfile = () => {
                                 <div className={styles.infoItem}>
                                     <strong className={styles.infoLabel}>Wallet Address:</strong>
                                     <span className={styles.infoValue}>
-                                        {expanded ? currentUserProfile?.xrplAddress : getShortAddress(currentUserProfile?.xrplAddress)}
-                                        {currentUserProfile?.xrplAddress && currentUserProfile?.xrplAddress.length > 12 && (
+                                        {/* MODIFIED HERE: xrplAddress -> gemWalletAddress */}
+                                        {expanded ? currentUserProfile?.gemWalletAddress : getShortAddress(currentUserProfile?.gemWalletAddress)}
+                                        {currentUserProfile?.gemWalletAddress && currentUserProfile?.gemWalletAddress.length > 12 && (
                                             <button
                                                 onClick={() => setExpanded(!expanded)}
                                                 className={styles.addressToggleButton}
                                             >
                                                 {expanded ? 'Hide' : 'Show full'}
                                             </button>
+                                        )}
+                                        {/* Display message if address is not set */}
+                                        {!currentUserProfile?.gemWalletAddress && (
+                                            <span style={{ fontStyle: 'italic', color: '#7f8c8d' }}> (Not connected)</span>
                                         )}
                                     </span>
                                 </div>
@@ -126,6 +140,7 @@ const UserProfile = () => {
                                     name="displayName"
                                     value={formData.displayName}
                                     onChange={handleInputChange}
+                                    className={styles.inputField} // Assuming you have a class for inputs
                                 />
                             </div>
                             <div className={styles.formActions}>
@@ -150,12 +165,10 @@ const UserProfile = () => {
                     ) : projects.length > 0 ? (
                         <ul className={styles.projectsList}>
                             {projects.map(project => (
-                                // <<<<<<<<<<<< WRAP li WITH Link <<<<<<<<<<<<
                                 <li key={project.id} className={styles.projectItem}>
                                     <Link to={`/projects/${project.id}`} className={styles.projectLink}>
                                         <div><strong>Name:</strong> {project.name || 'Unnamed Project'}</div>
                                         <div><strong>Description:</strong> {project.description || 'No description available.'}</div>
-                                        {/* You can add more project details here if needed */}
                                     </Link>
                                 </li>
                             ))}

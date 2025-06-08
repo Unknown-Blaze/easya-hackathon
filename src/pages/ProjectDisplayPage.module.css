@@ -165,6 +165,55 @@
     gap: 8px;
 }
 
+/* ProjectDisplayPage.module.css */
+/* ... existing styles ... */
+
+.advanceButton {
+  background-color: #f0ad4e; /* Orange warning color */
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+  margin-left: auto; /* Pushes it to the right in flex container */
+}
+
+.advanceButton:hover {
+  background-color: #ec971f;
+}
+
+.advanceButton:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.advanceButton .spinner {
+  margin-right: 5px;
+  animation: spin 1s linear infinite; /* Re-use spinner animation */
+  font-size: 1em; /* Adjust icon size within button */
+}
+
+.panelHeader { /* Ensure panelHeader is a flex container if not already */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem; /* Or your existing margin */
+}
+
+.errorMessage { /* General error message styling */
+  color: #d9534f; /* Red for errors */
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+}
+.errorMessage svg {
+  margin-right: 8px;
+}
+
 
 /* Milestones Panel Styling */
 .milestonesPanel {
