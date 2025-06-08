@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route, Link as RouterLink, NavLink, us
 import { useAuth } from './contexts/AuthContext';
 import HomePage from './pages/HomePage';
 import AdminLoginPage from './pages/AdminLoginPage';
-import AdminDashboardPage from './pages/AdminDashboardPage';
+import ProjectDonationPage from './pages/ProjectDonationPage';
 import UserLoginPage from './pages/UserLoginPage';
 import SignupPage from './pages/SignUpPage';
 import UserProfilePage from './pages/UserProfilePage';
@@ -192,7 +192,7 @@ function AppLayout() {
       </nav>
 
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/landing" element={<HomePage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<UserLoginPage />} />
         <Route path="/nftPage" element={<MintNFTPage />} />
@@ -202,11 +202,9 @@ function AppLayout() {
           element={currentUser ? <UserProfilePage /> : <Navigate to="/login" replace />}
         />
         <Route path="/projects/:projectId" element={<ProjectDisplayPage />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
-        <Route
-          path="/admin/dashboard"
-          element={currentUser?.uid === ADMIN_UID ? <AdminDashboardPage /> : <Navigate to="/admin/login" replace />}
-        />
+        {/* <Route path="/admin/login" element={<AdminLoginPage />} /> */}
+        <Route path="/donate/project/:projectId" element={<ProjectDonationPage />} />
+
         <Route
           path="/admin/order/:orderId" // TODO: Rename to /admin/project/:projectId or similar
           element={currentUser?.uid === ADMIN_UID ? <AdminEditOrderPage /> : <Navigate to="/admin/login" replace />}
