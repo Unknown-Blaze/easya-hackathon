@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom'; // To get projectId from URL eventually
 import { FiDollarSign, FiCheckCircle, FiClock, FiLoader, FiExternalLink, FiAlertCircle } from 'react-icons/fi';
 import classes from './ProjectDisplayPage.module.css'; // We'll create this CSS module
+import { sendPayment } from '@gemwallet/api';
 
 // Mock data for now
 const MOCK_PROJECT_DETAILS = {
@@ -44,8 +45,27 @@ const ProjectDisplayPage = () => {
   const [isLoadingTx, setIsLoadingTx] = useState(false);
   const [txError, setTxError] = useState(null);
 
+  async function handleSendPayment() {
+    const transaction = {
+      destination: 'r4sXNGwP85VZ4PQbceXD66Xp8cJHL6mT9B', // Replace with a real XRP address
+      amount: '5', // Amount in XRP
+    };
+  
+    try {
+      const response = await sendPayment(transaction);
+  
+      if (response.status === 'success') {
+        console.log('Transaction successful! Hash:', response.hash);
+      } else {
+        console.error('Payment failed:', response.error);
+      }
+    } catch (error) {
+      console.error('Unexpected error during payment:', error);
+    }
+  }
+
   const fetchTransactions = useCallback(async (isInitialFetch = false) => {
-    if (!isInitialFetch && isLoadingTx) return; // Prevent multiple concurrent fetches during polling
+    if (!isInitialFetch && isLoadingTx) return;
 
     setIsLoadingTx(true);
     setTxError(null);
@@ -147,8 +167,8 @@ const ProjectDisplayPage = () => {
   useEffect(() => {
     const intervalId = setInterval(() => {
         console.log("Polling for new transactions...");
-        fetchTransactions(false); // Pass false for subsequent polls
-    }, 10000); // Poll every 10 seconds (adjust as needed)
+        fetchTransactions(true); // Pass false for subsequent polls
+    }, 5000); // Poll every 10 seconds (adjust as needed)
 
     return () => clearInterval(intervalId); // Cleanup on unmount
   }, [fetchTransactions]); // Depend on fetchTransactions (which depends on lastTxHash)
@@ -213,6 +233,11 @@ const ProjectDisplayPage = () => {
               </li>
             ))}
           </ul>
+          <div className={classes.donate}>
+            <button onClick={handleSendPayment}>
+            Donate to Cause
+            </button>
+          </div>
         </div>
       </div>
     </div>
