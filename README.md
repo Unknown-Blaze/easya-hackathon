@@ -114,3 +114,4 @@ npm run dev
       </tbody>
     </table>
 
+Block explorer link - https://testnet.xrpl.org/accounts/r4sXNGwP85VZ4PQbceXD66Xp8cJHL6mT9B
