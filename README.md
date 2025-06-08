@@ -8,6 +8,37 @@
     <li>🔗 <strong>XRP Ledger (XRPL)</strong> for blockchain interactions (sending transactions, checking balances, etc.)</li>
   </ul>
 
+
+ <h3> XRP Ledger Integration</h3>
+  <p>The backend uses <code>xrpl-py</code> to interact with the XRP Ledger.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Mint NFTs</strong></td>
+        <td>Mints a new NFT on the XRP Ledger using the provided metadata and wallet seed.</td>
+      </tr>
+      <tr>
+        <td><strong>Fetch NFTs</strong></td>
+        <td>Retrieves all NFTs associated with a specified XRP Ledger account.</td>
+      </tr>
+      <tr>
+        <td><strong>Create Escrow Donations</strong></td>
+        <td>Creates time-locked escrow payments linked to milestone deadlines for secure, conditional donations.</td>
+      </tr>
+      <tr>
+        <td><strong>Verify Milestones</strong></td>
+        <td>Verifies milestone completion and either releases or cancels escrowed funds accordingly.</td>
+      </tr>
+    </tbody>
+  </table>
+
+
   <h2>Quick Start</h2>
   <h3>1. Clone the Repository</h3>
   <pre>git clone https://github.com/Unknown-Blaze/easya-hackathon.git
@@ -44,9 +75,6 @@ npm install
 npm run dev
   </pre>
   <p>Frontend runs on: <code>http://localhost:5173</code></p>
-
-  <h3> XRP Ledger Integration</h3>
-  <p>The backend uses <code>xrpl-py</code> to interact with the XRP Ledger.</p>
 
   <h3> XRP Donation API Endpoints</h3>
     <table>
