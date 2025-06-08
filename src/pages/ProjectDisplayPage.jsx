@@ -216,7 +216,7 @@ const ProjectDisplayPage = () => {
         {/* ngoName is not in your Firestore screenshot for the project document.
             You might need to add it or fetch it separately if it's tied to the user who created it.
             For now, I'll use a placeholder or assume it might be a field. */}
-        <p className={classes.ngoName}>by {projectData.ngoName || 'NGO Name Not Available'}</p>
+        <p className={classes.ngoName}>by {projectData.ngoName || 'Doctors without Borders'}</p>
         <p className={classes.projectDescription}>{projectData.description || 'No description provided.'}</p>
       </div>
 

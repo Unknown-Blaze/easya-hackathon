@@ -1,22 +1,22 @@
 // src/App.jsx
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link as RouterLink, NavLink, useNavigate, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link as RouterLink, NavLink, Navigate } from 'react-router-dom';
 
 import { useAuth } from './contexts/AuthContext';
-import HomePage from './pages/HomePage';
-import AdminLoginPage from './pages/AdminLoginPage';
+import HomePage from './pages/HomePage'; // This will be our landing page
+// AdminLoginPage might not be needed if admin logic is integrated elsewhere or secured differently
+// import AdminLoginPage from './pages/AdminLoginPage';
 import ProjectDonationPage from './pages/ProjectDonationPage';
 import UserLoginPage from './pages/UserLoginPage';
 import SignupPage from './pages/SignUpPage';
-import AdminEditOrderPage from './pages/AdminEditOrderPage'; // Consider renaming if "order" changes context
 import { usePageTracking } from './utils/analytics';
 import MintNFTPage from './pages/MintNFT';
 import CharityProjectForm from "./pages/CreateProject";
-import ProjectDisplayPage from './pages/ProjectDisplayPage'; // Import it
-import UserProfile from './pages/UserProfile';
+import ProjectDisplayPage from './pages/ProjectDisplayPage';
+import UserProfile from './pages/UserProfile'; // This is the component for /userprofile
 
-// IMPORTANT: For better security, ADMIN_UID should be stored in an environment variable.
-const ADMIN_UID = "0KdTIOR7cwd7fMKK805Ojt2tnBP2"; // <<<< REPLACE THIS with your actual Admin UID
+// Import the route protection components
+import { ProtectedRoute, PublicOnlyRoute } from './components/ProtectedRoute'; // Adjust path if needed
 
 const navStyles = {
   nav: {
@@ -102,13 +102,12 @@ export default function App() {
 }
 
 function AppLayout() {
-  const { currentUser, logout, currentUserProfile } = useAuth();
-  // const navigate = useNavigate(); // Not used directly in this simplified nav
+  const { currentUser, logout, currentUserProfile, loadingAuth } = useAuth(); // Added loadingAuth
 
   const handleLogout = async () => {
     try {
       await logout();
-      // navigate('/'); // Optional: redirect to home after logout
+      // Navigation after logout is handled by ProtectedRoute redirecting from protected pages
     } catch (error) {
       console.error("Failed to log out", error);
       alert("Logout failed. Please try again.");
@@ -118,6 +117,16 @@ function AppLayout() {
   const profileName = currentUserProfile?.displayName
     ? `${currentUserProfile.displayName}'s Profile`
     : "My Profile";
+
+  // Display a loading indicator while auth state is being determined
+  // This prevents flickering or incorrect redirects on initial load
+  if (loadingAuth) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        Loading Application...
+      </div>
+    );
+  }
 
   return (
     <>
@@ -130,7 +139,7 @@ function AppLayout() {
           {currentUser ? (
             <>
               <NavLink
-                to="/profile"
+                to="/userprofile" // <<<< CHANGED: Link to /userprofile
                 style={({ isActive }) =>
                   isActive
                     ? { ...navStyles.link, ...navStyles.activeLink }
@@ -139,6 +148,27 @@ function AppLayout() {
               >
                 {profileName}
               </NavLink>
+              <NavLink
+                to="/nftPage" // Assuming this is a public gallery page
+                style={({ isActive }) =>
+                  isActive
+                    ? { ...navStyles.link, ...navStyles.activeLink }
+                    : navStyles.link
+                }
+              >
+                NFT Gallery
+              </NavLink>
+              {/* Optional: Link to create project if user is logged in */}
+              {/* <NavLink
+                to="/createproject"
+                style={({ isActive }) =>
+                  isActive
+                    ? { ...navStyles.link, ...navStyles.activeLink }
+                    : navStyles.link
+                }
+              >
+                Create Project
+              </NavLink> */}
               <button
                 onClick={handleLogout}
                 style={navStyles.authButton}
@@ -176,41 +206,47 @@ function AppLayout() {
               >
                 Register
               </NavLink>
-              <NavLink
-                to="/nftPage"
-                style={({ isActive }) =>
-                  isActive
-                    ? { ...navStyles.link, ...navStyles.activeLink }
-                    : navStyles.link
-                }
-              >
-                NFT Gallery
-              </NavLink>
             </>
           )}
         </div>
       </nav>
 
       <Routes>
-        <Route path="/landing" element={<HomePage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/login" element={<UserLoginPage />} />
-        <Route path="/nftPage" element={<MintNFTPage />} />
-        <Route path="/createproject" element={<CharityProjectForm />} />
-        <Route path="/userprofile" element={<UserProfile />} />
-        {/* <Route
-          path="/profile"
-          element={currentUser ? <UserProfilePage /> : <Navigate to="/login" replace />}
-        /> */}
-        <Route path="/projects/:projectId" element={<ProjectDisplayPage />} />
-        {/* <Route path="/admin/login" element={<AdminLoginPage />} /> */}
-        <Route path="/donate/project/:projectId" element={<ProjectDonationPage />} />
-
+        {/* Default Route Logic */}
         <Route
-          path="/admin/order/:orderId" // TODO: Rename to /admin/project/:projectId or similar
-          element={currentUser?.uid === ADMIN_UID ? <AdminEditOrderPage /> : <Navigate to="/admin/login" replace />}
+          path="/"
+          element={
+            currentUser ? <Navigate to="/userprofile" replace /> : <Navigate to="/landing" replace />
+          }
         />
-        <Route path="*" element={<Navigate to="/" replace />} /> {/* Catch-all redirects to home */}
+
+        {/* Public Routes */}
+        <Route path="/landing" element={<HomePage />} />
+        <Route path="/nftPage" element={<MintNFTPage />} /> {/* Assuming public */}
+        <Route path="/projects/:projectId" element={<ProjectDisplayPage />} /> {/* Publicly viewable project details */}
+
+        {/* Routes only for Unauthenticated Users (e.g., login, signup) */}
+        <Route element={<PublicOnlyRoute />}>
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/login" element={<UserLoginPage />} />
+        </Route>
+
+        {/* Protected Routes (Require Authentication) */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/userprofile" element={<UserProfile />} />
+          <Route path="/createproject" element={<CharityProjectForm />} />
+          <Route path="/donate/project/:projectId" element={<ProjectDonationPage />} />
+          {/* Add other authenticated user routes here */}
+        </Route>
+
+        {/* Admin Route - Ensure currentUser check and ADMIN_UID comparison is robust */}
+        {/* This specific admin route structure might need more thought for larger admin sections */}
+        {/* You might want a dedicated /admin/login for admin users or a role-based system */}
+        {/* <Route path="/admin/login" element={<AdminLoginPage />} /> */}
+
+
+        {/* Catch-all for undefined routes - redirects to the smart default route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

@@ -170,7 +170,7 @@ const SignupPage = () => {
       console.log("SignupPage: Calling signup function with GemWallet address:", gemWalletAddress);
       await signup(email, password, nameToRegister, additionalData, handleStepChange);
       console.log("SignupPage: Firebase account and profile created/updated with GemWallet address.");
-      navigate('/profile');
+      navigate('/userprofile');
 
     } catch (err) {
       console.error("SignupPage Error in handleSubmit:", err);
@@ -183,7 +183,7 @@ const SignupPage = () => {
 
   if (currentUser && currentUserProfile) {
     console.log("SignupPage: User already logged in and profile exists. Redirecting.");
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/userprofile" replace />;
   }
 
   const renderDonorFieldsJsx = (

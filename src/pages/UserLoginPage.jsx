@@ -17,7 +17,7 @@ const UserLoginPage = () => {
     setError(''); setLoading(true);
     try {
       await login(email, password);
-      navigate('/profile'); // Redirect to user profile page
+      navigate('/userprofile'); // Redirect to user profile page
     } catch (err) {
       setError('Failed to log in. Check credentials.');
     }
@@ -25,7 +25,7 @@ const UserLoginPage = () => {
   };
 
    if (currentUser) { // If already logged in, redirect to profile
-    return <Navigate to="/profile" replace />;
+    return <Navigate to="/userprofile" replace />;
   }
 
   return (
