@@ -3,7 +3,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { FiDollarSign, FiCheckCircle, FiClock, FiLoader, FiExternalLink, FiAlertCircle } from 'react-icons/fi';
 import classes from './ProjectDisplayPage.module.css';
-import { sendPayment } from '@gemwallet/api';
 
 // Firestore imports
 import { doc, getDoc } from "firebase/firestore";
@@ -56,36 +55,6 @@ const ProjectDisplayPage = () => {
 
     fetchProject();
   }, [projectId]); // Re-fetch if projectId changes
-
-  // GemWallet payment handler
-  async function handleSendPayment() {
-    if (!projectData || !projectData.xrpl_wallet) {
-      console.error('Project data or XRPL wallet address is missing.');
-      alert('Cannot initiate payment: Project wallet address not found.');
-      return;
-    }
-
-    const transaction = {
-      destination: projectData.xrpl_wallet, // Use project's wallet address
-      amount: '5', // Example amount in XRP - consider making this dynamic
-    };
-
-    try {
-      const response = await sendPayment(transaction);
-      if (response.status === 'success') {
-        console.log('Transaction successful! Hash:', response.hash);
-        alert(`Payment successful! Transaction Hash: ${response.hash}`);
-        // Optionally, re-fetch transactions here or wait for polling
-        fetchTransactions(true); // Force a refresh of transactions
-      } else {
-        console.error('Payment failed:', response.error || response.message);
-        alert(`Payment failed: ${response.error || response.message || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Unexpected error during payment:', error);
-      alert(`An unexpected error occurred during payment: ${error.message}`);
-    }
-  }
 
   // Transaction fetching logic (mostly unchanged, but ensure it runs after project loads if dependent)
   const fetchTransactions = useCallback(async (isInitialFetch = false) => {
