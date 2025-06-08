@@ -4,78 +4,15 @@ import { useAuth } from '../contexts/AuthContext';
 import { doc, updateDoc, getDocs, collection, query, where, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import styles from './UserProfile.module.css';
-
-const MOCK_DONATIONS = [
-    {
-      "id": "donation1",
-      "amount": 50,
-      "receiverName": "Charity A",
-      "timestamp": { "seconds": 1685846400 }
-    },
-    {
-      "id": "donation2",
-      "amount": 75,
-      "receiverName": "Charity B",
-      "timestamp": { "seconds": 1685760000 }
-    },
-    {
-      "id": "donation3",
-      "amount": 100,
-      "receiverName": "Charity C",
-      "timestamp": { "seconds": 1685673600 }
-    },
-    {
-      "id": "donation4",
-      "amount": 25,
-      "receiverName": "Charity D",
-      "timestamp": { "seconds": 1685587200 }
-    },
-    {
-      "id": "donation5",
-      "amount": 30,
-      "receiverName": "Charity E",
-      "timestamp": { "seconds": 1685500800 }
-    },
-    {
-      "id": "donation6",
-      "amount": 60,
-      "receiverName": "Charity F",
-      "timestamp": { "seconds": 1685414400 }
-    },
-    {
-      "id": "donation7",
-      "amount": 45,
-      "receiverName": "Charity G",
-      "timestamp": { "seconds": 1685328000 }
-    },
-    {
-      "id": "donation8",
-      "amount": 90,
-      "receiverName": "Charity H",
-      "timestamp": { "seconds": 1685241600 }
-    },
-    {
-      "id": "donation9",
-      "amount": 120,
-      "receiverName": "Charity I",
-      "timestamp": { "seconds": 1685155200 }
-    },
-    {
-      "id": "donation10",
-      "amount": 80,
-      "receiverName": "Charity J",
-      "timestamp": { "seconds": 1685068800 }
-    }
-  ]
-  
+import { Link } from 'react-router-dom'; // <<<<<<<<<<<< IMPORT Link
 
 const UserProfile = () => {
-    const { currentUserProfile, updateUserProfile } = useAuth();
+    const { currentUserProfile, updateUserProfile } = useAuth(); // Assuming updateUserProfile updates displayName in context & Firestore
     const [isEditing, setIsEditing] = useState(false);
     const [expanded, setExpanded] = useState(false);
     const [formData, setFormData] = useState({ displayName: '' });
-    const donations = MOCK_DONATIONS
-    const [loadingDonations, setLoadingDonations] = useState(true);
+    const [projects, setProjects] = useState([]);
+    const [loadingProjects, setLoadingProjects] = useState(true);
 
     useEffect(() => {
         if (currentUserProfile) {
@@ -86,44 +23,52 @@ const UserProfile = () => {
     }, [currentUserProfile]);
 
     useEffect(() => {
-        const loadDonations = async () => {
-            setLoadingDonations(true);
-            if (currentUserProfile && currentUserProfile.uid) {
-                try {
-                    const donationsRef = collection(db, 'donations');
-                    const q = query(donationsRef, where('donorId', '==', currentUserProfile.uid), orderBy('timestamp', 'desc'));
-                    const querySnapshot = await getDocs(q);
-                    const donationsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                    setDonations(donationsData);
-                } catch (error) {
-                    console.error('Error fetching donations:', error);
-                } finally {
-                    setLoadingDonations(false);
-                }
-            } else {
-                setLoadingDonations(false);
+        const loadProjects = async () => {
+            setLoadingProjects(true);
+            try {
+                // Assuming 'charity_projects' is the correct collection name
+                // And each document in this collection has 'name' and 'description'
+                const projectsRef = collection(db, 'charity_projects');
+                // You might want to order them, e.g., by creation date if you have such a field
+                // const q = query(projectsRef, orderBy("createdAt", "desc"));
+                const q = query(projectsRef); // Simple query for all projects for now
+                const querySnapshot = await getDocs(q);
+                const projectsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setProjects(projectsData);
+            } catch (error) {
+                console.error('Error fetching projects:', error);
+            } finally {
+                setLoadingProjects(false);
             }
         };
 
-        loadDonations();
-    }, [currentUserProfile]);
+        loadProjects();
+    }, []); // Load projects once on component mount
 
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSave = async () => {
+        if (!currentUserProfile || !currentUserProfile.uid) {
+            console.error("User profile or UID is missing.");
+            return;
+        }
         try {
-            if (currentUserProfile && currentUserProfile.uid) {
-                await updateUserProfile(formData.displayName);
-                const userDocRef = doc(db, 'users', currentUserProfile.uid);
-                await updateDoc(userDocRef, {
-                    displayName: formData.displayName,
-                });
-                setIsEditing(false);
+            // Update in Firebase Auth (if your updateUserProfile in AuthContext handles this)
+            // and Firestore.
+            const userDocRef = doc(db, 'users', currentUserProfile.uid);
+            await updateDoc(userDocRef, {
+                displayName: formData.displayName,
+            });
+            // Also update the local AuthContext state
+            if (updateUserProfile) { // Check if updateUserProfile is provided by useAuth
+                await updateUserProfile(formData.displayName); // This should update currentUserProfile in context
             }
+            setIsEditing(false);
         } catch (error) {
             console.error('Error updating profile:', error);
+            // Add user-facing error message if needed
         }
     };
 
@@ -153,7 +98,7 @@ const UserProfile = () => {
                             <div className={styles.profileInfo}>
                                 <div className={styles.infoItem}>
                                     <strong className={styles.infoLabel}>Name:</strong>
-                                    <span className={styles.infoValue}>{currentUserProfile?.displayName || formData.displayName || 'Not set'}</span>
+                                    <span className={styles.infoValue}>{currentUserProfile?.displayName || 'Not set'}</span>
                                 </div>
                                 <div className={styles.infoItem}>
                                     <strong className={styles.infoLabel}>Wallet Address:</strong>
@@ -198,25 +143,28 @@ const UserProfile = () => {
                     )}
                 </div>
 
-                {/* Donation History */}
-                <div className={styles.donationsSection}>
+                {/* Project List */}
+                <div className={styles.projectsSection}>
                     <div className={styles.titleContainer}>
-                        <h3 className={styles.donationsTitle}>Donation History</h3>
+                        <h3 className={styles.projectsTitle}>All Projects</h3>
                     </div>
-                    {loadingDonations ? (
-                        <p>Loading donations...</p>
-                    ) : donations.length > 0 ? (
-                        <ul className={styles.donationsList}>
-                            {donations.map(donation => (
-                                <li key={donation.id} className={styles.donationItem}>
-                                    <div><strong>Amount:</strong> {donation.amount} XRP</div>
-                                    <div><strong>To:</strong> {donation.receiverName}</div>
-                                    <div><strong>Date:</strong> {new Date(donation.timestamp?.seconds * 1000).toLocaleDateString()}</div>
+                    {loadingProjects ? (
+                        <p>Loading projects...</p>
+                    ) : projects.length > 0 ? (
+                        <ul className={styles.projectsList}>
+                            {projects.map(project => (
+                                // <<<<<<<<<<<< WRAP li WITH Link <<<<<<<<<<<<
+                                <li key={project.id} className={styles.projectItem}>
+                                    <Link to={`/projects/${project.id}`} className={styles.projectLink}>
+                                        <div><strong>Name:</strong> {project.name || 'Unnamed Project'}</div>
+                                        <div><strong>Description:</strong> {project.description || 'No description available.'}</div>
+                                        {/* You can add more project details here if needed */}
+                                    </Link>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <p>No donations found.</p>
+                        <p>No projects found.</p>
                     )}
                 </div>
             </div>

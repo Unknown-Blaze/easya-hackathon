@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from xrpl.account import AccountNFTs
+from xrpl.models.requests import AccountNFTs
 from xrpl.models.transactions import NFTokenMint
 from xrpl.transaction import XRPLReliableSubmissionException, submit_and_wait
 from xrpl.utils import str_to_hex

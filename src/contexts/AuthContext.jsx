@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
 
   // Signup now focuses on Firebase Auth and basic profile creation.
   // Wallet address will be added in a separate step or if provided during this call.
-  const signup = async (email, password, displayName, additionalData = {}, 
+  const signup = async (email, password, displayName, additionalData = {},
                         onStepChange = (message) => console.log(message)
                        ) => {
     let user = null;
@@ -53,7 +53,8 @@ export const AuthProvider = ({ children }) => {
         preferredPaymentMethodId: '',
         preferredDeliveryTypeId: '',
         ...additionalData, // userType, nonprofit fields
-        xrplAddress: additionalData.xrplAddress || null, // Store if provided, else null
+        // MODIFIED: Store GemWallet address under 'gemWalletAddress'
+        gemWalletAddress: additionalData.gemWalletAddress || null,
       };
       await setDoc(userRef, userProfileData);
 
@@ -61,12 +62,10 @@ export const AuthProvider = ({ children }) => {
       setCurrentUserProfile(userProfileData);
       setCurrentUser(user);
 
-      // No seed to return anymore as GemWallet handles it.
       return { userCredential };
 
     } catch (error) {
       console.error("Error in signup process:", error.message);
-      // If user was created in Auth but Firestore failed, consider cleanup.
       if (user && error.code !== 'auth/email-already-in-use') {
           try {
               onStepChange("Signup failed. Cleaning up...");
@@ -82,23 +81,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // New function to update XRPL address after user connects GemWallet
-  const updateUserXrplAddress = async (userId, xrplAddress) => {
-    if (!userId || !xrplAddress) {
-      console.error("User ID and XRPL address are required to update.");
+  // RENAMED and MODIFIED: Function to update GemWallet address
+  const updateUserGemWalletAddress = async (userId, newGemWalletAddress) => {
+    if (!userId || !newGemWalletAddress) {
+      console.error("User ID and GemWallet address are required to update.");
       return false;
     }
     try {
       const userRef = doc(db, "users", userId);
-      await updateDoc(userRef, { xrplAddress: xrplAddress });
-      // Optionally, refresh currentUserProfile
+      // MODIFIED: Update the 'gemWalletAddress' field
+      await updateDoc(userRef, { gemWalletAddress: newGemWalletAddress });
+
       if (currentUserProfile && currentUserProfile.uid === userId) {
-        setCurrentUserProfile(prevProfile => ({ ...prevProfile, xrplAddress }));
+        // MODIFIED: Update local profile state with 'gemWalletAddress'
+        setCurrentUserProfile(prevProfile => ({ ...prevProfile, gemWalletAddress: newGemWalletAddress }));
       }
-      console.log("User XRPL address updated in Firestore:", xrplAddress);
+      console.log("User GemWallet address updated in Firestore:", newGemWalletAddress);
       return true;
     } catch (error) {
-      console.error("Error updating user XRPL address:", error);
+      console.error("Error updating user GemWallet address:", error);
       return false;
     }
   };
@@ -118,6 +119,7 @@ export const AuthProvider = ({ children }) => {
       const docSnap = await getDoc(userRef);
       if (docSnap.exists()) {
         const profileData = { uid: userId, ...docSnap.data() };
+        // Ensure profileData.gemWalletAddress is correctly loaded if it exists
         setCurrentUserProfile(profileData);
         return profileData;
       } else {
@@ -136,7 +138,7 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser(user);
-        await fetchUserProfile(user.uid);
+        await fetchUserProfile(user.uid); // This will now fetch profile possibly containing gemWalletAddress
       } else {
         setCurrentUser(null);
         setCurrentUserProfile(null);
@@ -154,7 +156,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     loadingAuth,
-    updateUserXrplAddress, // Expose the new function
+    updateUserGemWalletAddress, // RENAMED: Expose the renamed function
   };
 
   return (

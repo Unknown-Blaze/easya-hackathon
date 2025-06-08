@@ -22,15 +22,15 @@
   
   /* Left column: Profile */
   .profileSection {
-    flex: 1 1 20%;
+    flex: 1 1 45%;
     background: #ffffff;
     padding: 1.8rem 2rem;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
   }
   
-  /* Right column: Donations */
-  .donationsSection {
+  /* Right column: Projects */
+  .projectsSection {
     flex: 1 1 80%;
     background: #ffffff;
     padding: 1.8rem 2rem;
@@ -43,16 +43,16 @@
     scrollbar-color: #4a90e2 #e1eaff;
   }
   
-  .donationsSection::-webkit-scrollbar {
+  .projectsSection::-webkit-scrollbar {
     width: 8px;
   }
   
-  .donationsSection::-webkit-scrollbar-track {
+  .projectsSection::-webkit-scrollbar-track {
     background: #e1eaff;
     border-radius: 10px;
   }
   
-  .donationsSection::-webkit-scrollbar-thumb {
+  .projectsSection::-webkit-scrollbar-thumb {
     background-color: #4a90e2;
     border-radius: 10px;
     border: 2px solid #e1eaff;
@@ -65,7 +65,7 @@
   }
   
   .profileTitle,
-  .donationsTitle {
+  .projectsTitle {
     font-size: 1.7rem;
     font-weight: 700;
     color: #2c3e50;
@@ -204,7 +204,7 @@
     gap: 1.3rem;
   }
   
-  .donationsList {
+  .projectsList {
     list-style: none;
     padding-left: 0;
     margin: 0;
@@ -213,7 +213,7 @@
     gap: 1.3rem;
   }
   
-  .donationItem {
+  .projectItem {
     padding: 1.5rem 2rem;
     border: 1px solid #d1d9e6;        /* lighter border */
     border-radius: 12px;               /* a bit rounder */
@@ -224,17 +224,17 @@
     transition: box-shadow 0.3s ease, transform 0.3s ease;
     cursor: default;
     width: fit-content;       /* shrink width to content */
-    max-width: 500px;         /* maximum width */
+    max-width: 200px;         /* maximum width */
     margin: 0 auto;           /* center horizontally */
     display: block;           /* ensure margin auto works */
   }
   
-  .donationItem:hover {
+  .projectItem:hover {
     box-shadow: 0 8px 20px rgba(74, 144, 226, 0.3);  /* stronger shadow on hover */
     transform: translateY(-4px);                      /* slight lift */
   }
   
-  .donationItem div {
+  .projectItem div {
     margin-bottom: 0.4rem;
     font-weight: 600;
   }
@@ -244,13 +244,76 @@
   
   @media (max-width: px) {
     .contentWrapper {
-      flex-direction: column;
-      gap: 2rem;
+        flex-direction: column;
+        gap: 2rem;
     }
-    .profileSection, .donationsSection {
-      flex: none;
-      max-height: none;
-      padding: 1.6rem 1.8rem;
+    .profileSection,
+    .projectsSection {
+        flex: none;
+        max-height: none;
+        padding: 1.6rem 1.8rem;
     }
   }
   
+  /* Background colors */
+  body,
+  .userProfileContainer {
+    background-color: #f8f9fa;
+    color: #2c3e50;
+  }
+  
+  .card,
+  .profileSection,
+  .projectsSection {
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.15);
+  }
+  
+  .header,
+  .sidebar {
+    background-color: #343a40;
+    color: #ffffff;
+  }
+  
+  /* Text colors */
+  h1,
+  h2,
+  h3,
+  .profileTitle,
+  .projectsTitle {
+    color: #2c3e50;
+  }
+  
+  .navLink {
+    color: #495057;
+  }
+  
+  .navLink:hover {
+    color: #007bff;
+    background-color: #e9ecef;
+  }
+  
+  .activeNavLink {
+    background-color: #FF9800 !important;
+    color: #ffffff !important;
+  }
+  
+  /* Buttons */
+  .editButton {
+    background-color: #4a90e2; /* Keep or update as needed */
+    color: white;
+  }
+  
+  .logoutButton {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .logoutButton:hover {
+    background-color: #c82333;
+  }
+  
+  /* Scrollbar */
+  .sidebar::-webkit-scrollbar-thumb {
+    background-color: #FF9800;
+  }

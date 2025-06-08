@@ -8,7 +8,6 @@ import AdminLoginPage from './pages/AdminLoginPage';
 import ProjectDonationPage from './pages/ProjectDonationPage';
 import UserLoginPage from './pages/UserLoginPage';
 import SignupPage from './pages/SignUpPage';
-import UserProfilePage from './pages/UserProfilePage';
 import AdminEditOrderPage from './pages/AdminEditOrderPage'; // Consider renaming if "order" changes context
 import { usePageTracking } from './utils/analytics';
 import MintNFTPage from './pages/MintNFT';
@@ -199,10 +198,10 @@ function AppLayout() {
         <Route path="/nftPage" element={<MintNFTPage />} />
         <Route path="/createproject" element={<CharityProjectForm />} />
         <Route path="/userprofile" element={<UserProfile />} />
-        <Route
+        {/* <Route
           path="/profile"
           element={currentUser ? <UserProfilePage /> : <Navigate to="/login" replace />}
-        />
+        /> */}
         <Route path="/projects/:projectId" element={<ProjectDisplayPage />} />
         {/* <Route path="/admin/login" element={<AdminLoginPage />} /> */}
         <Route path="/donate/project/:projectId" element={<ProjectDonationPage />} />

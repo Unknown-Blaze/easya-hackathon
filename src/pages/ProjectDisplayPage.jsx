@@ -1,114 +1,131 @@
 // src/pages/ProjectDisplayPage.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom'; // To get projectId from URL eventually
+import { useParams } from 'react-router-dom';
 import { FiDollarSign, FiCheckCircle, FiClock, FiLoader, FiExternalLink, FiAlertCircle } from 'react-icons/fi';
-import classes from './ProjectDisplayPage.module.css'; // We'll create this CSS module
+import classes from './ProjectDisplayPage.module.css';
 import { sendPayment } from '@gemwallet/api';
 
-// Mock data for now
-const MOCK_PROJECT_DETAILS = {
-  '1': {
-    name: "Clean Water Initiative - Rural Village A",
-    ngoName: "AquaHope Foundation",
-    description: "Providing access to clean and safe drinking water by installing a new well and filtration system for 500 residents.",
-    milestones: [
-      { id: 'm1', title: "Secure Funding & Permits", status: "Completed", details: "All necessary funds raised and government permits obtained." },
-      { id: 'm2', title: "Site Survey & Preparation", status: "Completed", details: "Geological survey completed, site cleared for drilling." },
-      { id: 'm3', title: "Well Drilling & Pump Installation", status: "In Progress", details: "Drilling commenced, expected completion by end of next week." },
-      { id: 'm4', title: "Filtration System Setup", status: "Pending", details: "Equipment ordered, awaiting delivery." },
-      { id: 'm5', title: "Community Training & Handover", status: "Pending", details: "Training materials being prepared." },
-    ]
-  },
-  '2': {
-    name: "School Supplies for Underprivileged Children",
-    ngoName: "LearnForward Org",
-    description: "Equipping 200 children from low-income families with essential school supplies for the academic year.",
-    milestones: [
-      { id: 'm1', title: "Fundraising Campaign", status: "Completed" },
-      { id: 'm2', title: "Procurement of Supplies", status: "In Progress" },
-      { id: 'm3', title: "Distribution Event Planning", status: "Pending" },
-      { id: 'm4', title: "Supply Distribution", status: "Pending" },
-    ]
-  }
-};
+// Firestore imports
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../firebase/config'; // Adjust path if necessary
 
-// Your FastAPI endpoint for transactions
+// Remove or comment out MOCK_PROJECT_DETAILS
+// const MOCK_PROJECT_DETAILS = { ... };
+
 const LATEST_TRANSACTIONS_ENDPOINT = 'http://127.0.0.1:8000/transaction/latest-transactions';
 
-
 const ProjectDisplayPage = () => {
-  const { projectId } = useParams(); // Example: if using React Router: /projects/:projectId
-  const project = MOCK_PROJECT_DETAILS[projectId || '1']; // Default to project '1' if no ID
+  const { projectId } = useParams();
+  const [projectData, setProjectData] = useState(null);
+  const [loadingProject, setLoadingProject] = useState(true);
+  const [projectError, setProjectError] = useState(null);
 
   const [transactions, setTransactions] = useState([]);
   const [lastTxHash, setLastTxHash] = useState(null);
   const [isLoadingTx, setIsLoadingTx] = useState(false);
   const [txError, setTxError] = useState(null);
 
-  async function handleSendPayment() {
-    const transaction = {
-      destination: 'r4sXNGwP85VZ4PQbceXD66Xp8cJHL6mT9B', // Replace with a real XRP address
-      amount: '5', // Amount in XRP
+  // Fetch project details from Firestore
+  useEffect(() => {
+    const fetchProject = async () => {
+      if (!projectId) {
+        setProjectError("No project ID provided.");
+        setLoadingProject(false);
+        return;
+      }
+      setLoadingProject(true);
+      setProjectError(null);
+      try {
+        const projectDocRef = doc(db, 'charity_projects', projectId);
+        const docSnap = await getDoc(projectDocRef);
+
+        if (docSnap.exists()) {
+          setProjectData({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          setProjectError("Project not found.");
+          setProjectData(null);
+        }
+      } catch (error) {
+        console.error("Error fetching project details:", error);
+        setProjectError("Failed to load project details. Please try again.");
+        setProjectData(null);
+      } finally {
+        setLoadingProject(false);
+      }
     };
-  
+
+    fetchProject();
+  }, [projectId]); // Re-fetch if projectId changes
+
+  // GemWallet payment handler
+  async function handleSendPayment() {
+    if (!projectData || !projectData.xrpl_wallet) {
+      console.error('Project data or XRPL wallet address is missing.');
+      alert('Cannot initiate payment: Project wallet address not found.');
+      return;
+    }
+
+    const transaction = {
+      destination: projectData.xrpl_wallet, // Use project's wallet address
+      amount: '5', // Example amount in XRP - consider making this dynamic
+    };
+
     try {
       const response = await sendPayment(transaction);
-  
       if (response.status === 'success') {
         console.log('Transaction successful! Hash:', response.hash);
+        alert(`Payment successful! Transaction Hash: ${response.hash}`);
+        // Optionally, re-fetch transactions here or wait for polling
+        fetchTransactions(true); // Force a refresh of transactions
       } else {
-        console.error('Payment failed:', response.error);
+        console.error('Payment failed:', response.error || response.message);
+        alert(`Payment failed: ${response.error || response.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Unexpected error during payment:', error);
+      alert(`An unexpected error occurred during payment: ${error.message}`);
     }
   }
 
+  // Transaction fetching logic (mostly unchanged, but ensure it runs after project loads if dependent)
   const fetchTransactions = useCallback(async (isInitialFetch = false) => {
+    if (!projectData) return; // Don't fetch transactions if project data isn't loaded
     if (!isInitialFetch && isLoadingTx) return;
 
     setIsLoadingTx(true);
     setTxError(null);
     const url = new URL(LATEST_TRANSACTIONS_ENDPOINT);
-    // Only append last_tx_hash if it exists AND it's not the very first fetch
     if (lastTxHash && !isInitialFetch) {
       url.searchParams.append('latest_tx_hash', lastTxHash);
     }
+    // You might want to pass the project's XRPL address to your backend
+    // if transactions are specific to this project's wallet
+    if (projectData && projectData.xrpl_wallet) {
+        url.searchParams.append('account', projectData.xrpl_wallet);
+    }
+
 
     try {
-      console.log(`Fetching transactions from: ${url.toString()}`);
       const res = await fetch(url);
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ detail: `HTTP error! Status: ${res.status}` }));
         throw new Error(errorData.detail || `HTTP error! Status: ${res.status}`);
       }
       const data = await res.json();
-      console.log("Received transactions data:", data);
-
-      // The FastAPI endpoint returns the *new* transactions or *all* on first call.
-      // The structure of 'data' from your FastAPI is directly the list of transactions.
-      const newTxs = data; // Assuming data is directly the array of transactions
+      const newTxs = data;
 
       if (newTxs && newTxs.length > 0) {
-        // The structure of each transaction object (tx) from XRPL needs careful handling.
-        // Common fields: tx.TransactionType, tx.Account, tx.Destination, tx.Amount (if Payment)
-        // tx.hash or tx.tx.hash or tx.transaction.hash for the hash.
-        // tx.meta.delivered_amount for actual delivered amount (for XRP, or for tokens if complex)
-
         const formattedTxs = newTxs.map(txData => {
-          // Adjust this mapping based on the actual structure of txData from your API
-          const tx = txData.tx || txData.transaction || txData; // Common ways XRPL tx data is nested
+          const tx = txData.tx || txData.transaction || txData;
           const meta = txData.meta || {};
-
           let amount = 'N/A';
           if (tx.TransactionType === "Payment") {
-            if (typeof tx.Amount === 'string') { // XRP amount in drops
+            if (typeof tx.Amount === 'string') {
               amount = `${parseFloat(tx.Amount) / 1000000} XRP`;
-            } else if (typeof tx.Amount === 'object') { // Issued currency
+            } else if (typeof tx.Amount === 'object') {
               amount = `${tx.Amount.value} ${tx.Amount.currency}`;
             }
           }
-          // For delivered amount (often more accurate for cross-currency or partial payments)
           if (meta.delivered_amount) {
              if (typeof meta.delivered_amount === 'string') {
                 amount = `${parseFloat(meta.delivered_amount) / 1000000} XRP (Delivered)`;
@@ -116,79 +133,91 @@ const ProjectDisplayPage = () => {
                 amount = `${meta.delivered_amount.value} ${meta.delivered_amount.currency} (Delivered)`;
              }
           }
-
-
           return {
-            // IMPORTANT: Adjust these field accesses based on your actual XRPL transaction object structure
-            hash: txData.hash || tx.hash, // Prefer top-level hash if available from your API modification
+            hash: txData.hash || tx.hash,
             type: tx.TransactionType || 'Unknown',
             account: tx.Account || 'Unknown Source',
             destination: tx.Destination || 'Unknown Destination',
             amount: amount,
-            // For display, if you want a "name" instead of address, you'd need a mapping
-            // For now, we'll show part of the source account for "name"
             name: tx.Account ? `User (${tx.Account.substring(0, 5)}...${tx.Account.substring(tx.Account.length - 5)})` : 'Anonymous Donor',
             email: tx.TransactionType === "Payment" ? `To: ${ (tx.Destination || 'Project Wallet').substring(0, 8) }...` : 'Blockchain Interaction',
-            timestamp: tx.date ? new Date( (tx.date + 946684800) * 1000).toLocaleString() : new Date().toLocaleString(), // XRPL date is seconds since Jan 1, 2000
-            avatarUrl: `https://i.pravatar.cc/40?u=${tx.Account || Math.random()}` // Placeholder avatar
+            timestamp: tx.date ? new Date( (tx.date + 946684800) * 1000).toLocaleString() : new Date().toLocaleString(),
+            avatarUrl: `https://i.pravatar.cc/40?u=${tx.Account || Math.random()}`
           };
-        }).filter(Boolean); // Filter out any malformed entries if parsing fails
+        }).filter(Boolean);
 
         if (isInitialFetch) {
-          setTransactions(formattedTxs.slice(0, 5)); // Show latest 5 on initial
+          setTransactions(formattedTxs.slice(0, 5));
         } else {
-          // Prepend new transactions and keep the list at a max of 5
           setTransactions(prevTxs => [...formattedTxs, ...prevTxs].slice(0, 5));
         }
-        
-        // Update lastTxHash with the hash of the newest transaction from this batch
-        // Your FastAPI endpoint returns newest first if `forward=False`
         if (formattedTxs.length > 0) {
             setLastTxHash(formattedTxs[0].hash);
         }
       } else if (isInitialFetch) {
-        setTransactions([]); // No transactions found on initial fetch
+        setTransactions([]);
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
       setTxError(error.message || "Failed to fetch transactions.");
-      // Don't clear transactions on poll error, keep showing old ones
     } finally {
       setIsLoadingTx(false);
     }
-  }, [lastTxHash, isLoadingTx]); // Add isLoadingTx to dependencies to avoid re-triggering while already loading
+  }, [lastTxHash, isLoadingTx, projectData]); // Added projectData dependency
 
-  // Initial fetch
+  // Initial transaction fetch - depends on projectData
   useEffect(() => {
-    fetchTransactions(true);
-  }, [projectId]); // Re-fetch if projectId changes
+    if (projectData) { // Only fetch transactions once project data is available
+        fetchTransactions(true);
+    }
+  }, [projectData, fetchTransactions]); // Rerun if projectData changes or fetchTransactions definition changes
 
-  // Polling
+  // Polling for transactions
   useEffect(() => {
+    if (!projectData) return () => {}; // Don't start polling if no project data
+
     const intervalId = setInterval(() => {
-        console.log("Polling for new transactions...");
-        fetchTransactions(true); // Pass false for subsequent polls
-    }, 5000); // Poll every 10 seconds (adjust as needed)
+        fetchTransactions(false); // Pass false for subsequent polls
+    }, 10000); // Poll every 10 seconds
 
-    return () => clearInterval(intervalId); // Cleanup on unmount
-  }, [fetchTransactions]); // Depend on fetchTransactions (which depends on lastTxHash)
+    return () => clearInterval(intervalId);
+  }, [fetchTransactions, projectData]); // Added projectData dependency
 
-  if (!project) {
-    return <div className={classes.pageContainer}><p>Project not found.</p></div>;
-  }
 
+  // Milestone status icon helper
   const getMilestoneStatusIcon = (status) => {
-    if (status === "Completed") return <FiCheckCircle className={`${classes.milestoneIcon} ${classes.completed}`} />;
-    if (status === "In Progress") return <FiLoader className={`${classes.milestoneIcon} ${classes.inProgress} ${classes.spinner}`} />;
+    // Convert Firestore status (if exists) or use a default
+    const currentStatus = status || "Pending"; // Default to pending if no status field
+    if (currentStatus.toLowerCase() === "completed") return <FiCheckCircle className={`${classes.milestoneIcon} ${classes.completed}`} />;
+    if (currentStatus.toLowerCase() === "in progress") return <FiLoader className={`${classes.milestoneIcon} ${classes.inProgress} ${classes.spinner}`} />;
     return <FiClock className={`${classes.milestoneIcon} ${classes.pending}`} />;
   };
 
+
+  // Render logic
+  if (loadingProject) {
+    return <div className={classes.pageContainer} style={{ textAlign: 'center', paddingTop: '50px' }}><FiLoader className={classes.spinner} style={{ fontSize: '2em' }} /> <p>Loading project details...</p></div>;
+  }
+
+  if (projectError) {
+    return <div className={classes.pageContainer} style={{ textAlign: 'center', paddingTop: '50px' }}><FiAlertCircle style={{ fontSize: '2em', color: 'red' }}/> <p>{projectError}</p></div>;
+  }
+
+  if (!projectData) {
+    // This case should ideally be covered by projectError, but as a fallback:
+    return <div className={classes.pageContainer}><p>Project information is unavailable.</p></div>;
+  }
+
+  // --- Main Render when projectData is available ---
   return (
     <div className={classes.pageContainer}>
       <div className={classes.projectHeader}>
-        <h1>{project.name}</h1>
-        <p className={classes.ngoName}>by {project.ngoName}</p>
-        <p className={classes.projectDescription}>{project.description}</p>
+        <h1>{projectData.name || 'Project Name Not Available'}</h1>
+        {/* ngoName is not in your Firestore screenshot for the project document.
+            You might need to add it or fetch it separately if it's tied to the user who created it.
+            For now, I'll use a placeholder or assume it might be a field. */}
+        <p className={classes.ngoName}>by {projectData.ngoName || 'NGO Name Not Available'}</p>
+        <p className={classes.projectDescription}>{projectData.description || 'No description provided.'}</p>
       </div>
 
       <div className={classes.mainContentGrid}>
@@ -196,19 +225,17 @@ const ProjectDisplayPage = () => {
         <div className={classes.transactionsPanel}>
           <div className={classes.panelHeader}>
             <h2>Recent Donations</h2>
-            {/* <a href="#" className={classes.viewAllLink}>View all</a> */}
             {isLoadingTx && !transactions.length && <FiLoader className={classes.txLoadingSpinner} />}
           </div>
           {txError && <p className={classes.txErrorMessage}><FiAlertCircle/> {txError}</p>}
-          {!isLoadingTx && transactions.length === 0 && !txError && <p className={classes.noTransactions}>No recent donations to display.</p>}
+          {!isLoadingTx && transactions.length === 0 && !txError && <p className={classes.noTransactions}>No recent donations to display for this project.</p>}
           
           <ul className={classes.transactionList}>
             {transactions.map((tx, index) => (
               <li key={tx.hash || index} className={classes.transactionItem}>
-                <img src={tx.avatarUrl} alt={tx.name} className={classes.txAvatar} />
                 <div className={classes.txInfo}>
                   <span className={classes.txName}>{tx.name}</span>
-                  <span className={classes.txEmail}>{tx.email}</span> {/* Or tx.type / short description */}
+                  <span className={classes.txEmail}>{tx.email}</span>
                 </div>
                 <span className={classes.txAmount}>{tx.amount}</span>
               </li>
@@ -222,21 +249,32 @@ const ProjectDisplayPage = () => {
             <h2>Project Milestones</h2>
           </div>
           <ul className={classes.milestoneList}>
-            {project.milestones.map(milestone => (
-              <li key={milestone.id} className={`${classes.milestoneItem} ${classes[milestone.status.toLowerCase().replace(' ', '')]}`}>
-                {getMilestoneStatusIcon(milestone.status)}
-                <div className={classes.milestoneInfo}>
-                  <h3 className={classes.milestoneTitle}>{milestone.title}</h3>
-                  <p className={classes.milestoneStatusText}>Status: {milestone.status}</p>
-                  {milestone.details && <p className={classes.milestoneDetails}>{milestone.details}</p>}
-                </div>
-              </li>
-            ))}
+            {projectData.milestones && projectData.milestones.length > 0 ? (
+              projectData.milestones.map((milestone, index) => (
+                // Assuming milestone objects in Firestore have 'name' and 'description'
+                // and you might add 'status' and a unique 'id'
+                <li key={milestone.id || milestone.name || index} // Use a proper unique id if available
+                    className={`${classes.milestoneItem} ${classes[(milestone.status || 'pending').toLowerCase().replace(' ', '')]}`}>
+                  {getMilestoneStatusIcon(milestone.status)}
+                  <div className={classes.milestoneInfo}>
+                    <h3 className={classes.milestoneTitle}>{milestone.name || 'Milestone Title'}</h3>
+                    {/* The screenshot shows 'description' field for a milestone, let's use it */}
+                    {milestone.description && <p className={classes.milestoneDetails}>{milestone.description}</p>}
+                    {/* 'amount' and 'xrpl_wallet' are also in your milestone screenshot */}
+                    {milestone.amount && <p className={classes.milestoneAmount}>Target: {milestone.amount} XRP (or relevant currency)</p>}
+                    <p className={classes.milestoneStatusText}>Status: {milestone.status || 'Pending'}</p>
+                  </div>
+                </li>
+              ))
+            ) : (
+              <p>No milestones defined for this project.</p>
+            )}
           </ul>
           <div className={classes.donate}>
-            <button onClick={handleSendPayment}>
-            Donate to Cause
+            <button onClick={handleSendPayment} disabled={!projectData.xrpl_wallet}>
+              <FiDollarSign /> Donate to Cause
             </button>
+            {!projectData.xrpl_wallet && <p style={{fontSize: '0.8em', color: 'gray'}}>Donations for this project are currently unavailable.</p>}
           </div>
         </div>
       </div>
