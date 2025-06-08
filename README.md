@@ -1,7 +1,8 @@
 
 <h1>nGoDonate</h1>
   <h2>Demo Video</h2>
-  https://drive.google.com/drive/folders/1AhDhGtqxIBAe7raqtm7aah3fBNZaKPHf?usp=sharing
+  https://drive.google.com/drive/folders/1AhDhGtqxIBAe7raqtm7aah3fBNZaKPHf?usp=sharing 
+  - Kindly access this via normal tab (not incognito)
   <h2>React + Vite + FastAPI + XRP Blockchain App</h2>
   <p>Blockchain based, near transparent, trustworthy and secure donation platform</p>
   <ul>
