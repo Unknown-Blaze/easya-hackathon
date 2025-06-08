@@ -1,66 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>React + Vite + FastAPI + XRP Blockchain App</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      line-height: 1.6;
-      margin: 2rem;
-      background-color: #f9f9f9;
-      color: #333;
-    }
-    h1, h2, h3 {
-      color: #2c3e50;
-    }
-    code, pre {
-      background: #f4f4f4;
-      padding: 0.5em;
-      border-radius: 4px;
-      display: block;
-      overflow-x: auto;
-    }
-    pre {
-      white-space: pre-wrap;
-    }
-    .block {
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 1em;
-      border-radius: 8px;
-      margin-bottom: 1em;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-    }
 
-    thead {
-      background-color: #f9fafb;
-    }
-
-    th, td {
-      padding: 1rem;
-      text-align: left;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    th {
-      color: #374151;
-      font-weight: 600;
-    }
-
-    code {
-      background-color: #f3f4f6;
-      padding: 0.2rem 0.4rem;
-      border-radius: 4px;
-      font-family: Consolas, monospace;
-    }
-  </style>
-</head>
-<body>
     <h1>nGoDonate</h1>
   <h2>React + Vite + FastAPI + XRP Blockchain App</h2>
   <p>Blockchain based, near transparent, trustworthy and secure donation platform</p>
@@ -148,5 +86,3 @@ npm run dev
       </tbody>
     </table>
 
-</body>
-</html>
