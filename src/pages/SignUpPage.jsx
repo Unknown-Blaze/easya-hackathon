@@ -213,8 +213,6 @@ const SignupPage = () => {
 
         {error && <p className={classes.error}>{error}</p>}
 
-        <button onClick={connectGemWallet}>Connect Wallet</button>
-
         <form onSubmit={handleSubmit}>
           {userType === 'donor' ? renderDonorFieldsJsx : renderNonprofitFieldsJsx}
 
@@ -230,6 +228,8 @@ const SignupPage = () => {
             <label htmlFor="confirmPassword" className={classes.label}>Confirm Password</label>
             <input type="password" id="confirmPassword" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required className={classes.input} autoComplete="new-password" disabled={loading || showSeedModal}/>
           </div>
+
+          <button onClick={connectGemWallet}>Connect Wallet</button>
 
           <button type="submit" disabled={loading || showSeedModal} className={classes.button}>
             {loading ? (
