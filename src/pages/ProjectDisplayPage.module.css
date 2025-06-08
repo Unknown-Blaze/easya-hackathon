@@ -240,3 +240,8 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.donate {
+  display: flex;
+  justify-content: flex-end; /* pushes content to the right */
+}
