@@ -32,33 +32,17 @@ const ProjectDonationPage = () => { // Consider renaming this component if it's 
   const [project, setProject] = useState(() => location.state?.project || null); 
   const [isLoadingProject, setIsLoadingProject] = useState(!location.state?.project); // True if we need to fetch
 
-  useEffect(() => {
-    // Only try to "fetch" or set from MOCK if:
-    // 1. Project data wasn't passed via location.state initially OR
-    // 2. The projectId from the URL has changed and doesn't match the current project.
-    if (!project || (projectId && project && project.id !== projectId)) { // Assuming your MOCK_PROJECT_DETAILS items could have an 'id' field matching projectId
-      setIsLoadingProject(true); // Explicitly set loading true when we intend to fetch/set
-      console.log(`useEffect: Fetching/setting project for projectId: ${projectId}`);
-      
-      const projectDataFromMock = MOCK_PROJECT_DETAILS[projectId];
-      console.log(projectDataFromMock)
-
-      if (projectDataFromMock) {
-        // To make it compatible with the (projectId && project && project.id !== projectId) check,
-        // let's add an 'id' to our project object if it's not there.
-        setProject({ ...projectDataFromMock, id: projectId }); 
-      } else {
-        console.error(`Project with ID ${projectId} not found in MOCK_PROJECT_DETAILS.`);
-        setProject(null); // Explicitly set to null if not found
-        // You might want to set an error state here to show "Project not found"
-      }
+  
+useEffect(() => {
+    // ...
+    // This logic should now correctly use the passed `project` data if available
+    if (!project || (project && project.id !== projectId)) {
+      fetchProjectDetails();
+    } else if (project && project.id === projectId) {
       setIsLoadingProject(false);
-    } else if (project && !isLoadingProject) {
-        // If project was passed via location.state, ensure isLoadingProject is false.
-        // This handles the case where location.state.project was initially provided.
-        setIsLoadingProject(false);
     }
-  }, [projectId, location.state]);
+    // ...
+}, [projectId, location.state, project]);
 
   const handleAmountClick = (presetValue) => {
     setAmount(presetValue);

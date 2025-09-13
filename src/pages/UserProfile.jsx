@@ -129,6 +129,9 @@ const UserProfile = () => {
                                     </span>
                                 </div>
                             </div>
+                            <button className={styles.editButton} onClick={() => setIsEditing(true)}>
+                                Edit Profile
+                            </button>
                         </>
                     ) : (
                         <div className={styles.editForm}>
