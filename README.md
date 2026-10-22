@@ -1,5 +1,14 @@
+# nGoDonate
 
-<h1>nGoDonate</h1>
+XRP Ledger donation platform with milestone-based escrow payments and NFT donation receipts, built with FastAPI and React; Winner, Best Developer Tooling, EasyA x Ripple hackathon.
+
+[![XRPL](https://img.shields.io/badge/XRPL-Testnet-23292F?style=flat-square&logo=xrp&logoColor=white)](https://xrpl.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![React](https://img.shields.io/badge/React-Vite-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev/)
+[![Winner](https://img.shields.io/badge/Winner%20%C2%B7%20EasyA%20x%20Ripple-Best%20Developer%20Tooling-FFB000?style=flat-square)](#)
+
+<img src="screenshots/Screenshot%202025-06-08%20120215.png" alt="nGoDonate landing page" width="100%">
+
   <h2>Demo Video</h2>
   https://drive.google.com/drive/folders/1AhDhGtqxIBAe7raqtm7aah3fBNZaKPHf?usp=sharing 
   - Kindly access this via normal tab (not incognito)
